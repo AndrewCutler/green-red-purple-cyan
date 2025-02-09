@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package runtimePackage;
+
+service RuntimeService {
+    rpc SendChatMessage (ChatMessageRequest) returns (ChatMessageResponse);
+}
+
+message ChatMessageRequest {
+    string message = 1;
+    int32 id = 2;
+}
+
+message ChatMessageResponse {
+    string message = 1;
+    int32 id = 2;
+}

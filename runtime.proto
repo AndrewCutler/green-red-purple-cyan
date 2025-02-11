@@ -3,7 +3,16 @@ syntax = "proto3";
 package runtimePackage;
 
 service RuntimeService {
+    rpc JoinChat (JoinChatRequest) returns (JoinChatResponse);
     rpc SendChatMessage (ChatMessageRequest) returns (ChatMessageResponse);
+}
+
+message JoinChatRequest {
+    int32 id = 1;
+}
+
+message JoinChatResponse {
+    string action  = 1;
 }
 
 message ChatMessageRequest {

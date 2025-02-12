@@ -31,7 +31,7 @@ function joinChat(call, callback) {
 	let chat, action;
 	if (chats.has(id)) {
 		chat = chats.get(id);
-        // todo: check user isn't already joined
+		// todo: check user isn't already joined
 		chat.users.push(id);
 		action = 'joined';
 	} else {
@@ -40,13 +40,20 @@ function joinChat(call, callback) {
 		chat.users = [id];
 		chats.set(id, chat);
 	}
-	console.log(chats);
 	callback(null, { action });
 }
 
 function sendChatMessage(call, callback) {
-	console.log(`Firing ${sendChatMessage.name}.`);
 	const { message, id } = call.request;
+	if (!chats.has(id)) {
+        const msg = `no chat with id ${id}`;
+		callback(null, { message: msg });
+		console.error(msg);
+		return;
+	}
+    
+    const chat = chats.get(id);
+
 	callback(null, { message: `message ${message} from id ${id}` });
 }
 

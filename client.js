@@ -9,22 +9,29 @@ const client = new proto.RuntimeService(
 	grpc.credentials.createInsecure(),
 );
 
-const [, , id] = process.argv;
+const [, , command, id, message] = process.argv;
 
-client.JoinChat({ id }, (err, res) => {
-	if (err) {
-		console.error(err);
-		return;
-	}
+switch (command) {
+	case 'join':
+		client.JoinChat({ id }, (err, res) => {
+			if (err) {
+				console.error(err);
+				return;
+			}
 
-	console.log('Message from server: ', JSON.stringify(res));
-});
+			console.log('Message from server: ', JSON.stringify(res));
+		});
+		break;
+	case 'message':
+		client.SendChatMessage({ message, id }, (err, res) => {
+			if (err) {
+				console.error(err);
+				return;
+			}
 
-// client.SendChatMessage({ message, id }, (err, res) => {
-// 	if (err) {
-// 		console.error(err);
-// 		return;
-// 	}
-
-// 	console.log('Message from server: ', JSON.stringify(res));
-// });
+			console.log('Message from server: ', JSON.stringify(res));
+		});
+		break;
+	default:
+		break;
+}

@@ -1,6 +1,7 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const packageDef = protoLoader.loadSync('runtime.proto', {});
+const fs = require('fs');
 
 const proto = grpc.loadPackageDefinition(packageDef).runtimePackage;
 
@@ -8,7 +9,7 @@ function main() {
 	const server = new grpc.Server();
 	server.addService(proto.RuntimeService.service, {
 		SendChatMessage: sendChatMessage,
-		JoinChat: joinChat,
+		GetVideo: getVideo,
 	});
 	server.bindAsync(
 		'0.0.0.0:40000',
@@ -24,35 +25,34 @@ function main() {
 	);
 }
 
-const chats = new Map();
+function getVideo(call) {
+	const stream = fs.createReadStream('photo.jpg', { highWaterMark: 100 });
 
-function joinChat(call, callback) {
-	const { id } = call.request;
-	let chat, action;
-	if (chats.has(id)) {
-		chat = chats.get(id);
-		// todo: check user isn't already joined
-		chat.users.push(id);
-		action = 'joined';
-	} else {
-		chat = { id, users: [] };
-		action = 'created';
-		chat.users = [id];
-		chats.set(id, chat);
-	}
-	callback(null, { action });
+	stream.on('data', async function (chunk) {
+		call.write({ chunk });
+	});
+
+	stream.on('end', function () {
+		console.log('finished reading file.');
+		call.end();
+	});
+
+	stream.on('error', function (err) {
+		console.error('error reading file:', err);
+		call.end();
+	});
 }
 
 function sendChatMessage(call, callback) {
 	const { message, id } = call.request;
 	if (!chats.has(id)) {
-        const msg = `no chat with id ${id}`;
+		const msg = `no chat with id ${id}`;
 		callback(null, { message: msg });
 		console.error(msg);
 		return;
 	}
-    
-    const chat = chats.get(id);
+
+	const chat = chats.get(id);
 
 	callback(null, { message: `message ${message} from id ${id}` });
 }

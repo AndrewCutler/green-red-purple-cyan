@@ -8,8 +8,7 @@ const proto = grpc.loadPackageDefinition(packageDef).runtimePackage;
 function main() {
 	const server = new grpc.Server();
 	server.addService(proto.RuntimeService.service, {
-		SendChatMessage: sendChatMessage,
-		GetVideo: getVideo,
+		GetFile: getFile,
 	});
 	server.bindAsync(
 		'0.0.0.0:40000',
@@ -25,8 +24,9 @@ function main() {
 	);
 }
 
-function getVideo(call) {
-	const stream = fs.createReadStream('photo.jpg', { highWaterMark: 100 });
+function getFile(call) {
+	const { filename } = call.request;
+	const stream = fs.createReadStream(filename, { highWaterMark: 100 });
 
 	stream.on('data', async function (chunk) {
 		call.write({ chunk });
@@ -38,23 +38,19 @@ function getVideo(call) {
 	});
 
 	stream.on('error', function (err) {
-		console.error('error reading file:', err);
+		switch (err.code) {
+			case 'ENOENT':
+				console.error('Cannot find file: ', filename);
+				break;
+			case 'EACCES':
+				console.error('Cannot access file: ', filename);
+				break;
+			default:
+				console.error(err);
+				break;
+		}
 		call.end();
 	});
-}
-
-function sendChatMessage(call, callback) {
-	const { message, id } = call.request;
-	if (!chats.has(id)) {
-		const msg = `no chat with id ${id}`;
-		callback(null, { message: msg });
-		console.error(msg);
-		return;
-	}
-
-	const chat = chats.get(id);
-
-	callback(null, { message: `message ${message} from id ${id}` });
 }
 
 main();

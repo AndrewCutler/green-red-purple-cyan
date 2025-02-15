@@ -10,11 +10,11 @@ const client = new proto.RuntimeService(
 	grpc.credentials.createInsecure(),
 );
 
-const [, , command, id, message] = process.argv;
+const [, , command, filename] = process.argv;
 
 switch (command) {
-	case 'join':
-		const call = client.GetVideo({ id });
+	case 'file':
+		const call = client.GetFile({ filename });
 
 		const data = [];
 		call.on('data', function ({ chunk }) {
@@ -35,21 +35,6 @@ switch (command) {
 			}
 
 			fs.writeFileSync('copy.jpg', arr);
-		});
-		break;
-	case 'message':
-		if (!message) {
-			console.error('no message');
-			return;
-		}
-
-		client.SendChatMessage({ message, id }, (err, res) => {
-			if (err) {
-				console.error(err);
-				return;
-			}
-
-			console.log('Message from server: ', JSON.stringify(res));
 		});
 		break;
 	default:

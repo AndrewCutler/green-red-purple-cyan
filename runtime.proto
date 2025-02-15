@@ -3,24 +3,14 @@ syntax = "proto3";
 package runtimePackage;
 
 service RuntimeService {
-    rpc GetVideo (GetVideoRequest) returns (stream GetVideoRespone);
-    rpc SendChatMessage (ChatMessageRequest) returns (ChatMessageResponse);
+    rpc GetFile (GetFileRequest) returns (stream GetFileResponse);
 }
 
-message GetVideoRequest {
+message GetFileRequest {
     int32 id = 1;
+    string filename = 2;
 }
 
-message GetVideoRespone {
+message GetFileResponse {
     bytes chunk = 1;
-}
-
-message ChatMessageRequest {
-    string message = 1;
-    int32 id = 2;
-}
-
-message ChatMessageResponse {
-    string message = 1;
-    int32 id = 2;
 }

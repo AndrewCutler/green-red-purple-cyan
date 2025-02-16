@@ -9,6 +9,7 @@ function main() {
 	const server = new grpc.Server();
 	server.addService(proto.RuntimeService.service, {
 		GetFile: getFile,
+		UploadFile: uploadFile,
 	});
 	server.bindAsync(
 		'0.0.0.0:40000',
@@ -50,6 +51,20 @@ function getFile(call) {
 				break;
 		}
 		call.end();
+	});
+}
+
+function uploadFile(call, callback) {
+	const data = [];
+	call.on('data', function ({ chunk }) {
+		console.log('data: ', {
+			chunk,
+			string: String.fromCharCode(...chunk),
+		});
+	});
+
+	call.on('end', function () {
+		console.log('end');
 	});
 }
 

@@ -4,6 +4,7 @@ package runtimePackage;
 
 service RuntimeService {
     rpc GetFile (GetFileRequest) returns (stream GetFileResponse);
+    rpc UploadFile (stream UploadFileRequest) returns (UploadFileResponse);
 }
 
 message GetFileRequest {
@@ -14,3 +15,9 @@ message GetFileRequest {
 message GetFileResponse {
     bytes chunk = 1;
 }
+
+message UploadFileRequest {
+    bytes chunk = 1;
+}
+
+message UploadFileResponse {}

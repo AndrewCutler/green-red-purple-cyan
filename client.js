@@ -13,7 +13,7 @@ const client = new proto.RuntimeService(
 const [, , command, filename] = process.argv;
 
 switch (command) {
-	case 'file':
+	case 'getfile': {
 		const call = client.GetFile({ filename });
 
 		const data = [];
@@ -27,16 +27,28 @@ switch (command) {
 				length += curr.length;
 			}
 
-			const arr = new Uint8Array(length);
+			const buffer = new Uint8Array(length);
 			let offset = 0;
 			for (const curr of data) {
-				arr.set(curr, offset);
+				buffer.set(curr, offset);
 				offset += curr.length;
 			}
 
-			fs.writeFileSync('copy.jpg', arr);
+			fs.writeFileSync('copy.jpg', buffer);
 		});
 		break;
+	}
+	case 'upload': {
+		const call = client.UploadFile(function (err, res) {
+			if (err) {
+				console.error(err);
+				return;
+			}
+		});
+		call.write({ chunk: Buffer.from('testing', 'utf-8') });
+		call.end();
+		break;
+	}
 	default:
 		break;
 }
